@@ -7,11 +7,11 @@ from question.models import Question,QuestionChoice,Category
 # Create your models here.
 
 class Game(models.Model):
-    participants = models.ManyToManyField('GameParticipant')
+    playerA = models.ForeignKey(Player, on_delete=models.SET_NULL, null=True, related_name='PlayerA+')
+    playerB = models.ForeignKey(Player, on_delete=models.SET_NULL, null=True, related_name='PlayerB+')
     completed = models.BooleanField(default=False)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
-    asked_questions = models.ManyToManyField(Question)
-
+    asked_questions = models.ManyToManyField(Question, blank=True)
 
     def get_next_question():
         pass

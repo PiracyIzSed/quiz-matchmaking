@@ -10,9 +10,3 @@ class CreatePlayerAPI(CreateAPIView):
 
 class AddToQueueAPI(CreateAPIView):
     serializer_class = PlayerQueueSerializer
-
-    def post(self, request, *args, **kwargs):
-        super(AddToQueueAPI, self).create(request, *args, **kwargs)
-        player_id = request.POST.get('player')
-        category_id = request.POST.get('category')
-        return redirect('/game/match-find/'+player_id+'/')

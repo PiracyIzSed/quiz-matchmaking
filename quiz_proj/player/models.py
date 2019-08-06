@@ -11,5 +11,5 @@ class Player(models.Model):
     country_code = models.CharField(default='+91', max_length=5)
 
 class PlayerQueue(models.Model):
-    player = models.OneToOneField('Player', on_delete=models.SET_NULL, null=True)
+    player = models.OneToOneField(Player, on_delete=models.SET_NULL, null=True)
     category  = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)

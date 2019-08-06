@@ -7,27 +7,116 @@
     <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <style media="screen">
+            body {
+            background: #222;
+            text-align: center;
+            padding: 20%;
+            }
+            h2 {
+            color: #ccc;
+            margin: 0;
+            font: .8em verdana;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            }
+            /*
+            * Loading Dots
+            * Can we use pseudo elements here instead :after?
+            */
+            .loading span {
+            display: inline-block;
+            vertical-align: middle;
+            width: .6em;
+            height: .6em;
+            margin: .19em;
+            background: #007DB6;
+            border-radius: .6em;
+            animation: loading 1s infinite alternate;
+            }
+
+            /*
+            * Dots Colors
+            * Smarter targeting vs nth-of-type?
+            */
+            .loading span:nth-of-type(2) {
+            background: #008FB2;
+            animation-delay: 0.2s;
+            }
+            .loading span:nth-of-type(3) {
+            background: #009B9E;
+            animation-delay: 0.4s;
+            }
+            .loading span:nth-of-type(4) {
+            background: #00A77D;
+            animation-delay: 0.6s;
+            }
+            .loading span:nth-of-type(5) {
+            background: #00B247;
+            animation-delay: 0.8s;
+            }
+            .loading span:nth-of-type(6) {
+            background: #5AB027;
+            animation-delay: 1.0s;
+            }
+            .loading span:nth-of-type(7) {
+            background: #A0B61E;
+            animation-delay: 1.2s;
+            }
+
+            /*
+            * Animation keyframes
+            * Use transition opacity instead of keyframes?
+            */
+            @keyframes loading {
+            0% {
+              opacity: 0;
+            }
+            100% {
+              opacity: 1;
+            }
+            }
+    </style>
   </head>
   <body>
-    <div class="text-center">
+    <!-- <div class="text-center">
       <div class="spinner-border" role="status">
         <span class="sr-only">Loading...</span>
       </div>
+    </div> -->
+    <div class="container-fluid">
+      <div class="loading ">
+        <h2>Please Wait While We Setup A Game For You</h2>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="container">
+        <button type="button" class="btn btn-danger">Cancel</button>
+
+      </div>
+
     </div>
+
     <script type="text/javascript">
+
 
       (function poll() {
         $.ajax({
             url: "/game/match-found/",
             type: "GET",
             data:{
-              player_id: {{ player_id }}
+              player: {{ player }}
             },
             success: function(data) {
                 console.log("polling");
                 console.log(data);
                 if(data.found){
-                  window.location="/game-flow/"+{{player_id}}+"/"+data.id+"/";
+                  window.location="/game-flow/"+{{player}}+"/"+data.id+"/";
                 }
             },
             dataType: "json",
@@ -35,6 +124,41 @@
             timeout: 2000
         })
       })();
+      {% if not mode == "single" %}
+        $.ajax({
+          url: "/player/add-queue/",
+          type: "POST",
+          beforeSend: function (xhr, settings) {
+            xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+          },
+          data:{
+            player: {{ player }},
+            category: {{ category }}
+          },
+          success: function(data) {
+              console.log(data);
+
+          },
+          dataType: "json",
+        });
+      {% else %}
+        $.ajax({
+          url: "/game/match-create/",
+          type: "POST",
+          data:{
+            playerA: {{ player }},
+            category: {{ category }}
+          },
+          beforeSend: function (xhr, settings) {
+            xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+          },
+          success: function(data) {
+              console.log(data);
+
+          },
+          dataType: "json",
+      });
+      {% endif %}
 
     </script>
   </body>
